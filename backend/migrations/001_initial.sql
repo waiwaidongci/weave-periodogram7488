@@ -2,3 +2,6 @@
 -- traverse_studies(name UNIQUE); traverse_points(study_id,reference UNIQUE,position UNIQUE,thickness)
 -- frequency_plans(frequencies JSON,permutations,seed); spectrum_runs(source_snapshot JSON,plan_snapshot JSON,result JSON)
 -- weave_notes(result_snapshot JSON), users, audit_logs. Numeric mappings use Double(asdecimal=False).
+-- watch_sets(study_id UNIQUE,published_revision_id); watch_set_plans(set_id,plan_id UNIQUE)
+-- watch_revisions(set_id,revision UNIQUE,source_snapshot JSON,source_fingerprint,status,trigger)
+-- watch_tasks(revision_id,plan_id UNIQUE,plan_snapshot JSON,run_id,status)

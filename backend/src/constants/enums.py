@@ -12,3 +12,13 @@ class NoteStatus(StrEnum):
  DRAFT='draft'
  APPROVED='approved'
  REJECTED='rejected'
+class WatchRevisionStatus(StrEnum):
+ RUNNING='running'
+ PUBLISHED='published'
+ SUPERSEDED='superseded'
+ FAILED='failed'
+class WatchTaskStatus(StrEnum):
+ PENDING='pending'
+ DISPATCHED='dispatched'
+ COMPLETED='completed'
+ FAILED='failed'

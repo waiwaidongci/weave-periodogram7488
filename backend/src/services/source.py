@@ -24,4 +24,7 @@ def edit_point(db,id,data,actor):
  _,points=source_data(db,point.study_id);candidate=[dict(p,position=data.position,thickness=data.thickness) if p['id']==id else p for p in points]
  try:validate_points(candidate)
  except ValueError as error:raise HTTPException(422,str(error))
- point.position=data.position;point.thickness=data.thickness;db.commit();record(db,actor,'point.revised',{'point_id':id});return row(point)
+ point.position=data.position;point.thickness=data.thickness;db.commit();record(db,actor,'point.revised',{'point_id':id})
+ from .watch import on_source_revised
+ on_source_revised(db,point.study_id,actor)
+ return row(point)

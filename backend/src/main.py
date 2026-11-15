@@ -11,7 +11,7 @@ from src.models import *
 from src.middlewares.request_id import RequestIDMiddleware
 from src.middlewares.errors import ErrorMiddleware
 from src.middlewares.rate_limit import RateLimitMiddleware
-from src.routes import auth,source,plans,runs,notes,audit
+from src.routes import auth,source,plans,runs,notes,audit,watch
 @asynccontextmanager
 async def lifespan(app):
  Base.metadata.create_all(engine)
@@ -20,12 +20,17 @@ async def lifespan(app):
    from scripts.seed_demo import seed
    seed()
   except Exception:logging.exception('seed failure; startup continues')
+ try:
+  from src.config.database import SessionLocal
+  from src.services.watch import recover
+  with SessionLocal() as db:recover(db)
+ except Exception:logging.exception('watch recovery failure; startup continues')
  yield
 app=FastAPI(title='绫度织纹谱峰研究册',lifespan=lifespan)
 @app.exception_handler(RequestValidationError)
 async def invalid_input(request,error):return JSONResponse({'detail':[{'loc':e['loc'],'message':e['msg'],'type':e['type']} for e in error.errors()]},status_code=422)
 app.add_middleware(ErrorMiddleware);app.add_middleware(RateLimitMiddleware);app.add_middleware(RequestIDMiddleware)
-for route in (auth,source,plans,runs,notes,audit):app.include_router(route.router)
+for route in (auth,source,plans,runs,notes,audit,watch):app.include_router(route.router)
 @app.get('/health')
 def health():
  with engine.connect() as c:c.execute(text('select 1'))

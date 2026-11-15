@@ -32,13 +32,17 @@ Compose恰好frontend/backend/worker/db/redis五服务，各有healthcheck。Ngi
 
 1. 09:00，林纬打开“谱峰总览”，先区分空间周期证据和制造原因。
 2. 在“不等距测线”核对 `LD-34A 十八毫米纹理` / `ld-traverse-1-202611.csv`，如 `LD1-P001` 的位置mm和厚度mm。保留实际间距，不插成等距输入。
-3. 导入独立织片JSON或修订厚度；重复位置会拒绝。每条4–240点、跨度≤10000mm，已有任务保留提交时数据快照。
+3. 导入独立织片JSON或修订厚度；重复位置会拒绝。每条4–240点、跨度≤10000mm，已有任务保留提交时数据快照。已登记跟踪研究集的测线，修订提交后自动按新版测点整组重算。
 4. 在“频率计划”预先声明周期范围10–90mm：fmin=1/90、fmax=.1、201等频点、B199、seed234。计划冻结后不编辑；看过谱峰才改范围应作为探索新研究，需独立资料核对。
 5. 从该测线的冻结计划排队。提交时源点和计划都复制进run，worker只使用这两份快照。
 6. A研究120点/201频点，选中18mm、功率.933678718814。全网格null最大值没有达到观测值，p=(0+1)/(199+1)=.005，而不是对挑出的频率报单频p。
 7. 读选频率带截距拟合、相对于x₀的幅度/相位、全部谱与采样窗口函数，核对混叠和泄漏。网格间距不是周期置信区间。
 8. 在“织片补测”写独立织片来源、保持预设网格和不等距补测位置的行动，不认定织机成因。
 9. 方绎批准或退回；苏纾下载批准全谱CSV。重复审批409，事后改点不能改写冻结运行或批准快照；过程留痕保留导入、计划、队列、审阅和导出。
+
+## 持续跟踪研究集
+
+总览不再把最近一次单次运行当作最新依据。分析员在“谱峰总览”为一条测线登记研究集：选择该测线的多份冻结计划，登记即派发首版。此后每次测点修订提交，服务自动创建新一版修订：整版共用同一份测点快照，为集内每份计划各建一个快照运行并排队。整版全部成功才整组发布替换总览；任一计划失败则该版标记部分失败，总览保留上一组并列出失败计划与原因。重算途中又有新修订时，只有最新一版能发布，旧版即使晚到完成也只标记被取代、不回退总览。后端启动时恢复：测点指纹与最新版不一致（例如崩溃发生在修订与建版之间）则补建恢复版，未派发的任务补派、已完成但未回写的状态补记并重新结算；重复投递由运行状态去重，不产生第二组。同版测点正在重算时手动重算幂等返回。历史单次研究和已批准补测说明不受影响，归档列表原样保留。
 
 ## 数值口径
 
@@ -56,7 +60,7 @@ cos/sin列各减其均值形成A，QR分解A=QR。对中心化厚度y_c，解释
 
 ## 实体、界面与校验
 
-79个有职责的Python/TS/TSX/CSS文件（不含空包、依赖和dist）。五实体TraverseStudy → TraversePoint → FrequencyPlan → SpectrumRun → WeaveNote贯穿ORM/schema/service/routes、前端API/store和六页：谱峰总览、不等距测线、频率计划、完整谱与全局p、织片补测、过程留痕。
+87个有职责的Python/TS/TSX/CSS文件（不含空包、依赖和dist）。五实体TraverseStudy → TraversePoint → FrequencyPlan → SpectrumRun → WeaveNote贯穿ORM/schema/service/routes、前端API/store和六页：谱峰总览、不等距测线、频率计划、完整谱与全局p、织片补测、过程留痕。跟踪研究集另增WatchSet → WatchSetPlan → WatchRevision → WatchTask四表：集登记测线与计划组合，修订版冻结测点快照与指纹，任务关联快照运行；`backend/tests`以SQLite与同步worker覆盖整组发布、部分失败保留、并发取代、恢复补齐与幂等。
 
 前端 `src/{api,stores,types,components/common,hooks,pages,router,utils,constants}`；后端 `src/{routes,controllers,services,models,schemas,middlewares,utils,constants,config}`，另scripts/seed_demo.py与migrations/。SpectrumPlot、TracePlot、PeakSummary、RunList在多页复用，PermutationPanel只画后端实际null频数；useTask/useRoute和format处理交互。React挂载id=root与createRoot一致。
 

@@ -1,1 +1,1 @@
-import {RUN_STATUS,NOTE_STATUS} from '../../constants/enums';export function Status({value}:{value:string}){return <span className={'status '+value}>{RUN_STATUS[value]||NOTE_STATUS[value]||value}</span>}
+import {RUN_STATUS,NOTE_STATUS,WATCH_REVISION_STATUS,WATCH_TASK_STATUS} from '../../constants/enums';export function Status({value}:{value:string}){return <span className={'status '+value}>{(RUN_STATUS as any)[value]||(NOTE_STATUS as any)[value]||(WATCH_REVISION_STATUS as any)[value]||(WATCH_TASK_STATUS as any)[value]||value}</span>}
